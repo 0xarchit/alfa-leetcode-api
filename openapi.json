@@ -1,0 +1,2073 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Alfa LeetCode API",
+    "version": "2.0.1",
+    "description": "A comprehensive REST API for accessing LeetCode data including user profiles, problem sets, contest information, discussion forums, and submission statistics. This API provides endpoints to retrieve details about user profiles, badges, solved questions, contest details, contest history, submissions, calendar data, daily questions, selected problems, problem lists with filtering capabilities, trending discussions, and more.",
+    "contact": {
+      "name": "API Support",
+      "url": "https://github.com/0xarchit/alfa-leetcode-api"
+    },
+    "license": {
+      "name": "ISC",
+      "url": "https://opensource.org/licenses/ISC"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://leetcode-api-a413.onrender.com",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "root",
+      "description": "Service root and API documentation"
+    },
+    {
+      "name": "userDetails",
+      "description": "User profile, stats, submissions, badges, and account information"
+    },
+    {
+      "name": "contest",
+      "description": "Contest ranking, history, and performance data"
+    },
+    {
+      "name": "discussion",
+      "description": "Trending discussions, topics, and comments from the LeetCode community"
+    },
+    {
+      "name": "problems",
+      "description": "Problem lists, individual problems, daily challenges, and official solutions"
+    },
+    {
+      "name": "statistics",
+      "description": "User statistics including language stats and skill assessments"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "root"
+        ],
+        "summary": "API index and documentation",
+        "description": "Returns a comprehensive list of available routes with descriptions, parameters, and usage examples for all endpoints in the API.",
+        "responses": {
+          "200": {
+            "description": "API index with routes documentation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiIndex"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/officialSolution": {
+      "get": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Get official solution for a problem",
+        "description": "Retrieves the official LeetCode solution for a specific problem including detailed explanations, code implementations, and complexity analysis.",
+        "parameters": [
+          {
+            "name": "titleSlug",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "two-sum"
+            },
+            "description": "Problem slug identifier (e.g., 'two-sum', 'longest-substring-without-repeating-characters')"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Official solution details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfficialSolution"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid titleSlug parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Upstream/Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/userProfileCalendar": {
+      "get": {
+        "tags": [
+          "userDetails"
+        ],
+        "summary": "Get user submission calendar for a specific year",
+        "description": "Retrieves detailed submission calendar data for a user including active years, streak information, total active days, badges earned, and submission history for the specified year.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "exampleuser"
+            },
+            "description": "LeetCode username"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 2015,
+              "maximum": 2030,
+              "example": 2024
+            },
+            "description": "Year for calendar data (e.g., 2024)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User calendar data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCalendar"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid username/year",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Upstream/Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/userProfile/{id}": {
+      "get": {
+        "tags": [
+          "userDetails"
+        ],
+        "summary": "Get aggregated user profile details",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Formatted user profile data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dailyQuestion": {
+      "get": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Get raw daily question",
+        "responses": {
+          "200": {
+            "description": "Daily question payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/skillStats/{username}": {
+      "get": {
+        "tags": [
+          "userDetails"
+        ],
+        "summary": "Get skill stats for a user",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Skill stats payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/userProfileUserQuestionProgressV2/{userSlug}": {
+      "get": {
+        "tags": [
+          "userDetails"
+        ],
+        "summary": "Get question progress for a user",
+        "parameters": [
+          {
+            "name": "userSlug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Question progress payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/discussTopic/{topicId}": {
+      "get": {
+        "tags": [
+          "discussion"
+        ],
+        "summary": "Get a discussion topic",
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Discussion topic payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/discussComments/{topicId}": {
+      "get": {
+        "tags": [
+          "discussion"
+        ],
+        "summary": "Get comments for a discussion topic",
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "orderBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "newest_to_oldest"
+            }
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "numPerPage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Discussion comments payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/userContestRankingInfo/{username}": {
+      "get": {
+        "tags": [
+          "contest"
+        ],
+        "summary": "Get user contest ranking info",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contest ranking info payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/daily": {
+      "get": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Get daily problem (formatted)",
+        "description": "Retrieves today's LeetCode daily challenge with formatted response including problem details, constraints, examples, hints, and solution information.",
+        "responses": {
+          "200": {
+            "description": "Daily problem with formatted data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyProblem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/select": {
+      "get": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Get a specific problem by slug",
+        "description": "Retrieves detailed information about a specific LeetCode problem including content, examples, constraints, hints, topic tags, and related problems.",
+        "parameters": [
+          {
+            "name": "titleSlug",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "two-sum"
+            },
+            "description": "Problem slug identifier (e.g., 'two-sum', 'valid-parentheses')"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Selected problem details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SelectedProblem"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid titleSlug",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/problems": {
+      "get": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Get a list of problems with optional filtering",
+        "description": "Retrieves a paginated list of LeetCode problems with support for filtering by difficulty, topic tags, and pagination controls. This endpoint supports multiple query combinations creating various use cases.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 50
+            },
+            "description": "Number of problems to return (default: 20, max: 100)"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "example": 20
+            },
+            "description": "Number of problems to skip for pagination (default: 0)"
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "array math"
+            },
+            "description": "Space-separated topic tags to filter problems (e.g., 'array math', 'dynamic-programming')"
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["EASY", "MEDIUM", "HARD"],
+              "example": "MEDIUM"
+            },
+            "description": "Filter problems by difficulty level"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of problems with metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemList"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/problems/easy": {
+      "get": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Get easy difficulty problems",
+        "description": "Convenience endpoint for retrieving only easy difficulty problems. This is equivalent to /problems?difficulty=EASY",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Number of problems to return"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "description": "Number of problems to skip for pagination"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of easy problems",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/problems/medium": {
+      "get": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Get medium difficulty problems",
+        "description": "Convenience endpoint for retrieving only medium difficulty problems. This is equivalent to /problems?difficulty=MEDIUM",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Number of problems to return"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "description": "Number of problems to skip for pagination"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of medium problems",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/problems/hard": {
+      "get": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Get hard difficulty problems",
+        "description": "Convenience endpoint for retrieving only hard difficulty problems. This is equivalent to /problems?difficulty=HARD",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Number of problems to return"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "description": "Number of problems to skip for pagination"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of hard problems",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trendingDiscuss": {
+      "get": {
+        "tags": [
+          "discussion"
+        ],
+        "summary": "Get trending discussions",
+        "parameters": [
+          {
+            "name": "first",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of topics to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trending discussions payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/languageStats": {
+      "get": {
+        "tags": [
+          "statistics"
+        ],
+        "summary": "Get language statistics for a user",
+        "description": "Retrieves programming language usage statistics for a specific user, showing their submission distribution across different programming languages.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "exampleuser"
+            },
+            "description": "LeetCode username"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Language statistics data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LanguageStats"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing username parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{username}": {
+      "get": {
+        "tags": [
+          "userDetails"
+        ],
+        "summary": "Get comprehensive user profile details",
+        "description": "Retrieves detailed profile information for a LeetCode user including personal details, ranking, reputation, social links, location, and skill tags.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "exampleuser"
+            },
+            "description": "LeetCode username"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Limit for related data (submissions, etc.)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{username}/badges": {
+      "get": {
+        "tags": [
+          "userDetails"
+        ],
+        "summary": "Get user badges and achievements",
+        "description": "Retrieves all badges earned by a user including active badge, upcoming badges, and total badge count with detailed badge information.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "exampleuser"
+            },
+            "description": "LeetCode username"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User badges and achievements",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserBadges"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{username}/solved": {
+      "get": {
+        "tags": [
+          "userDetails"
+        ],
+        "summary": "Get total number of solved problems",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Solved problems payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{username}/contest": {
+      "get": {
+        "tags": [
+          "contest"
+        ],
+        "summary": "Get user contest details",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User contest details payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{username}/contest/history": {
+      "get": {
+        "tags": [
+          "contest"
+        ],
+        "summary": "Get user contest history",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User contest history payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{username}/submission": {
+      "get": {
+        "tags": [
+          "userDetails"
+        ],
+        "summary": "Get last 20 submissions",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent submissions payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{username}/acSubmission": {
+      "get": {
+        "tags": [
+          "userDetails"
+        ],
+        "summary": "Get last 20 accepted submissions",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent accepted submissions payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{username}/calendar": {
+      "get": {
+        "tags": [
+          "userDetails"
+        ],
+        "summary": "Get user submission calendar (aggregated)",
+        "description": "Retrieves aggregated submission calendar data for a user showing daily submission activity across all time. This provides a heat-map style view of user activity.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "exampleuser"
+            },
+            "description": "LeetCode username"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User submission calendar data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSubmissionCalendar"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/problems/by-tag/{tag}": {
+      "get": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Get problems by specific topic tag",
+        "description": "Retrieves problems filtered by a specific topic tag. This is a convenience endpoint for topic-specific problem exploration.",
+        "parameters": [
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "array"
+            },
+            "description": "Topic tag slug (e.g., 'array', 'dynamic-programming', 'binary-search')"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Number of problems to return"
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["EASY", "MEDIUM", "HARD"]
+            },
+            "description": "Filter by difficulty level"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Problems filtered by topic tag",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/problems/popular": {
+      "get": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Get popular problems",
+        "description": "Retrieves a list of popular LeetCode problems based on frequency and user engagement metrics.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Number of problems to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of popular problems",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/statistics/global": {
+      "get": {
+        "tags": [
+          "statistics"
+        ],
+        "summary": "Get global LeetCode statistics",
+        "description": "Retrieves global platform statistics including total problems, users, submission counts, and platform-wide metrics.",
+        "responses": {
+          "200": {
+            "description": "Global platform statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GlobalStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/problems/search": {
+      "get": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Search problems by keyword",
+        "description": "Search for problems using keywords in title or content. Supports fuzzy matching and relevance-based sorting.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "binary tree"
+            },
+            "description": "Search query keywords"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Number of problems to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemList"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message description"
+          }
+        },
+        "required": ["error"]
+      },
+      "ApiIndex": {
+        "type": "object",
+        "properties": {
+          "routes": {
+            "type": "object",
+            "properties": {
+              "userDetails": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "Method": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "contest": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "Method": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "discussion": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "Method": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "problems": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "Method": {
+                    "type": "string"
+                  },
+                  "singleProblem": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "problemList": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "DailyProblem": {
+        "type": "object",
+        "properties": {
+          "questionLink": {
+            "type": "string",
+            "format": "uri",
+            "description": "Direct link to the problem on LeetCode"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of the daily challenge"
+          },
+          "questionId": {
+            "type": "integer",
+            "description": "Internal question ID"
+          },
+          "questionFrontendId": {
+            "type": "integer",
+            "description": "Frontend question number visible to users"
+          },
+          "questionTitle": {
+            "type": "string",
+            "description": "Problem title"
+          },
+          "titleSlug": {
+            "type": "string",
+            "description": "URL-friendly problem identifier"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": ["Easy", "Medium", "Hard"],
+            "description": "Problem difficulty level"
+          },
+          "isPaidOnly": {
+            "type": "boolean",
+            "description": "Whether the problem requires premium subscription"
+          },
+          "question": {
+            "type": "string",
+            "description": "Problem statement content"
+          },
+          "exampleTestcases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Example test cases"
+          },
+          "topicTags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicTag"
+            },
+            "description": "Associated topic tags"
+          },
+          "hints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Problem hints"
+          },
+          "likes": {
+            "type": "integer",
+            "description": "Number of likes"
+          },
+          "dislikes": {
+            "type": "integer",
+            "description": "Number of dislikes"
+          },
+          "similarQuestions": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Related similar problems"
+          }
+        }
+      },
+      "SelectedProblem": {
+        "type": "object",
+        "properties": {
+          "link": {
+            "type": "string",
+            "format": "uri",
+            "description": "Direct link to the problem"
+          },
+          "questionId": {
+            "type": "integer",
+            "description": "Internal question ID"
+          },
+          "questionFrontendId": {
+            "type": "integer",
+            "description": "Frontend question number"
+          },
+          "questionTitle": {
+            "type": "string",
+            "description": "Problem title"
+          },
+          "titleSlug": {
+            "type": "string",
+            "description": "URL-friendly problem identifier"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": ["Easy", "Medium", "Hard"]
+          },
+          "isPaidOnly": {
+            "type": "boolean"
+          },
+          "question": {
+            "type": "string",
+            "description": "Problem statement"
+          },
+          "exampleTestcases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "topicTags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicTag"
+            }
+          },
+          "hints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "likes": {
+            "type": "integer"
+          },
+          "dislikes": {
+            "type": "integer"
+          },
+          "similarQuestions": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "ProblemList": {
+        "type": "object",
+        "properties": {
+          "totalQuestions": {
+            "type": "integer",
+            "description": "Total number of problems matching the criteria"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Number of problems returned in this response"
+          },
+          "problemsetQuestionList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProblemSummary"
+            },
+            "description": "List of problems"
+          }
+        }
+      },
+      "ProblemSummary": {
+        "type": "object",
+        "properties": {
+          "acRate": {
+            "type": "number",
+            "format": "float",
+            "description": "Acceptance rate percentage"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": ["Easy", "Medium", "Hard"]
+          },
+          "freqBar": {
+            "type": "number",
+            "description": "Frequency indicator"
+          },
+          "questionFrontendId": {
+            "type": "integer",
+            "description": "Problem number"
+          },
+          "isFavor": {
+            "type": "boolean",
+            "description": "Whether problem is marked as favorite"
+          },
+          "isPaidOnly": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "description": "User's solving status for this problem"
+          },
+          "title": {
+            "type": "string",
+            "description": "Problem title"
+          },
+          "titleSlug": {
+            "type": "string"
+          },
+          "topicTags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicTag"
+            }
+          },
+          "hasSolution": {
+            "type": "boolean"
+          },
+          "hasVideoSolution": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TopicTag": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name of the topic"
+          },
+          "id": {
+            "type": "string",
+            "description": "Topic identifier"
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-friendly topic identifier"
+          }
+        }
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "LeetCode username"
+          },
+          "name": {
+            "type": "string",
+            "description": "Real name"
+          },
+          "birthday": {
+            "type": "string",
+            "format": "date",
+            "description": "User's birthday"
+          },
+          "avatar": {
+            "type": "string",
+            "format": "uri",
+            "description": "Profile avatar URL"
+          },
+          "ranking": {
+            "type": "integer",
+            "description": "Global ranking"
+          },
+          "reputation": {
+            "type": "integer",
+            "description": "User reputation score"
+          },
+          "gitHub": {
+            "type": "string",
+            "format": "uri",
+            "description": "GitHub profile URL"
+          },
+          "twitter": {
+            "type": "string",
+            "format": "uri",
+            "description": "Twitter profile URL"
+          },
+          "linkedIN": {
+            "type": "string",
+            "format": "uri",
+            "description": "LinkedIn profile URL"
+          },
+          "website": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Personal websites"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country name"
+          },
+          "company": {
+            "type": "string",
+            "description": "Company name"
+          },
+          "school": {
+            "type": "string",
+            "description": "School name"
+          },
+          "skillTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "User's skill tags"
+          },
+          "about": {
+            "type": "string",
+            "description": "About me description"
+          }
+        }
+      },
+      "UserBadges": {
+        "type": "object",
+        "properties": {
+          "badgesCount": {
+            "type": "integer",
+            "description": "Total number of badges earned"
+          },
+          "badges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Badge"
+            },
+            "description": "All earned badges"
+          },
+          "upcomingBadges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Badge"
+            },
+            "description": "Badges close to being earned"
+          },
+          "activeBadge": {
+            "$ref": "#/components/schemas/Badge",
+            "description": "Currently displayed badge"
+          }
+        }
+      },
+      "Badge": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Badge name"
+          },
+          "icon": {
+            "type": "string",
+            "format": "uri",
+            "description": "Badge icon URL"
+          }
+        }
+      },
+      "UserSubmissionCalendar": {
+        "type": "object",
+        "properties": {
+          "submissionCalendar": {
+            "type": "string",
+            "description": "JSON string containing calendar submission data"
+          }
+        }
+      },
+      "UserCalendar": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "matchedUser": {
+                "type": "object",
+                "properties": {
+                  "userCalendar": {
+                    "type": "object",
+                    "properties": {
+                      "activeYears": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer"
+                        },
+                        "description": "Years with activity"
+                      },
+                      "streak": {
+                        "type": "integer",
+                        "description": "Current submission streak"
+                      },
+                      "totalActiveDays": {
+                        "type": "integer",
+                        "description": "Total days with submissions"
+                      },
+                      "submissionCalendar": {
+                        "type": "string",
+                        "description": "Calendar data as JSON string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "LanguageStats": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "matchedUser": {
+                "type": "object",
+                "properties": {
+                  "languageProblemCount": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "languageName": {
+                          "type": "string",
+                          "description": "Programming language name"
+                        },
+                        "problemsSolved": {
+                          "type": "integer",
+                          "description": "Number of problems solved in this language"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "OfficialSolution": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "question": {
+                "type": "object",
+                "properties": {
+                  "solution": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "Solution title"
+                      },
+                      "content": {
+                        "type": "string",
+                        "description": "Solution content/explanation"
+                      },
+                      "contentTypeId": {
+                        "type": "string"
+                      },
+                      "paidOnly": {
+                        "type": "boolean"
+                      },
+                      "hasVideoSolution": {
+                        "type": "boolean"
+                      },
+                      "paidOnlyVideo": {
+                        "type": "boolean"
+                      },
+                      "canSeeDetail": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "GlobalStats": {
+        "type": "object",
+        "properties": {
+          "totalProblems": {
+            "type": "integer",
+            "description": "Total number of problems on the platform"
+          },
+          "totalUsers": {
+            "type": "integer",
+            "description": "Total registered users"
+          },
+          "totalSubmissions": {
+            "type": "integer",
+            "description": "Total submissions across all problems"
+          },
+          "easyProblems": {
+            "type": "integer"
+          },
+          "mediumProblems": {
+            "type": "integer"
+          },
+          "hardProblems": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}
